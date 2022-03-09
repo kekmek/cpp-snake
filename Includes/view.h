@@ -13,6 +13,8 @@ class View{
     virtual void DrawRabits(std::vector<std::pair<int, int>>& rabits) = 0;
     virtual void CleanScreen() = 0;
 
+    virtual ~View() {}
+
  private:
 
     static View* obj;

@@ -3,6 +3,10 @@
 #include <unistd.h>
 #include <termios.h>
 #include <ctime>
+#include <termios.h>
+#include <signal.h>
+#include <sys/poll.h>
+#include <string>
 
 #include "tview.h"
 
@@ -25,6 +29,31 @@
 #define BACKGROUND_COL_MAGENTA 45
 #define BACKGROUND_COL_CYAN 46
 #define BACKGROUND_COL_WHITE 47
+
+struct termios old_term;
+bool final = false;
+
+void SignHandler(int n) {
+    final = true;
+}
+
+Tview::Tview() {
+    struct termios term;
+    tcgetattr(0, &term);
+    
+    old_term = term;
+
+    cfmakeraw(&term);
+    term.c_lflag |= ISIG; 
+    tcsetattr(0, TCSANOW, &term);
+    signal(SIGINT, SignHandler);
+
+}
+
+Tview::~Tview() {
+    tcsetattr(0, TCSANOW, &old_term);
+}
+
 
 void Tview::CleanScreen() {
     printf("\e[H\e[J");
@@ -50,7 +79,30 @@ void Tview::Draw(){
     const size_t length_x  = w.ws_col;
     const size_t length_y  = w.ws_row;
 
-    while(true) {
+
+    while(!final) {
+
+    struct pollfd arr;
+    arr.fd = 0;
+    arr.events = POLLIN;
+
+    int n = poll(&arr, 1, 500);
+    if( n == 1) {
+
+        char c;
+        scanf("%c", &c);
+
+        if( c == 'q') {
+            break;
+        }
+
+        // std::string str;
+        // getline(cin, str);
+
+        // if(str == "quit") {
+        //     break;
+        // }
+    }
 
     SetColor(FOREGROUND_COL_YELLOW, BACKGROUND_COL_BLACK);
     CleanScreen();
@@ -72,12 +124,14 @@ void Tview::Draw(){
         printf("*");
     }
 
-    std::vector<std::pair<int, int>> rabits = { {15, 18}, {12, 14}, {22, 18} };
+    std::vector<std::pair<int, int>> rabits = { {15, 18}, {12, 14}, {22, 18} , {44, 16}};
 
-    //usleep(1000);
+    usleep(1000);
     DrawRabits(rabits);
 
     }
+
+
 }
 
 void Tview::DrawRabits(std::vector<std::pair<int, int>>& rabits) {
@@ -85,7 +139,6 @@ void Tview::DrawRabits(std::vector<std::pair<int, int>>& rabits) {
     for(const auto& [x, y]: rabits) {
         GoCoord(x, y);
         printf("@");
-        fflush(stdout);
-        usleep(1000);
+        fflush(stdout);        
     }
 }
