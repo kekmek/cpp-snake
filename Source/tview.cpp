@@ -7,8 +7,11 @@
 #include <signal.h>
 #include <sys/poll.h>
 #include <string>
+#include <random>
+#include <algorithm>
 
 #include "tview.h"
+#include "game.h"
 
 //Foreground Colors
 #define FOREGROUND_COL_BLACK 30
@@ -79,66 +82,99 @@ void Tview::Draw(){
     const size_t length_x  = w.ws_col;
     const size_t length_y  = w.ws_row;
 
+    const std::vector<std::pair<int, int>>& rabits = RandCooord(length_x, length_y);
 
     while(!final) {
 
-    struct pollfd arr;
-    arr.fd = 0;
-    arr.events = POLLIN;
+        struct pollfd arr;
+        arr.fd = 0;
+        arr.events = POLLIN;
 
-    int n = poll(&arr, 1, 500);
-    if( n == 1) {
+        int n = poll(&arr, 1, 500);
+        if( n == 1) {
+            
+            char c;
+            scanf("%c", &c);
 
-        char c;
-        scanf("%c", &c);
+            if( c == 'q') break;
 
-        if( c == 'q') {
-            break;
         }
 
-        // std::string str;
-        // getline(cin, str);
+        SetColor(FOREGROUND_COL_YELLOW, BACKGROUND_COL_BLACK);
+        CleanScreen();
 
-        // if(str == "quit") {
-        //     break;
-        // }
-    }
+        GoCoord(1, 1);
+        for(int i = 1; i < length_x; ++i) {
+            printf("*");
+        }
 
-    SetColor(FOREGROUND_COL_YELLOW, BACKGROUND_COL_BLACK);
-    CleanScreen();
+        GoCoord(1, length_y);
+        for(int i = 1; i < length_x; ++i) {
+            printf("*");
+        }
+        
+        for(int i = 1; i < length_y; ++i) {
+            GoCoord(1, i);
+            printf("*");
+            GoCoord(length_x, i);
+            printf("*");
+        }
 
-    GoCoord(1, 1);
-    for(int i = 1; i < length_x; ++i) {
-        printf("*");
-    }
+        DrawRabits(rabits);
 
-    GoCoord(1, length_y);
-    for(int i = 1; i < length_x; ++i) {
-        printf("*");
-    }
+        usleep(1000);
     
-    for(int i = 1; i < length_y; ++i) {
-        GoCoord(1, i);
-        printf("*");
-        GoCoord(length_x, i);
-        printf("*");
-    }
-
-    std::vector<std::pair<int, int>> rabits = { {15, 18}, {12, 14}, {22, 18} , {44, 16}};
-
-    usleep(1000);
-    DrawRabits(rabits);
-
     }
 
 
 }
 
-void Tview::DrawRabits(std::vector<std::pair<int, int>>& rabits) {
+std::vector<std::pair<int, int>> Tview::RandCooord(const size_t length_x, const size_t length_y) {
+    const size_t rabits_quan = 20;
+
+    std::vector<std::pair<int, int>> rand_coord;
+    
+    std::random_device random_device; 
+    std::mt19937 generator(random_device());
+    std::uniform_int_distribution<> distribution_x(1, length_x);
+    std::uniform_int_distribution<> distribution_y(1, length_y);
+
+    for(int i  = 0; i < rabits_quan; ++i) {
+
+        int x = distribution_x(generator);
+        int y = distribution_y(generator); 
+
+        rand_coord.push_back(std::pair<int, int>(x, y));
+
+    }
+    
+    return rand_coord;
+}
+
+void Tview::DrawRabits(const std::vector<std::pair<int, int>>& rabits) {
     SetColor(FOREGROUND_COL_WHITE, BACKGROUND_COL_BLACK);
     for(const auto& [x, y]: rabits) {
         GoCoord(x, y);
         printf("@");
         fflush(stdout);        
     }
+}
+
+void Tview::PrintSnake(const size_t length_x, const size_t length_y) {
+
+    size_t start_x;
+    size_t start_y;
+
+    std::random_device random_device; 
+    std::mt19937 generator(random_device());
+
+    std::uniform_int_distribution<> distribution_x(1, length_x);
+    std::uniform_int_distribution<> distribution_y(1, length_y);
+
+    start_x = distribution_x(generator);
+    start_y = distribution_y(generator);
+
+    GoCoord(start_x, start_y);
+    
+
 }
