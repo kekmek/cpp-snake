@@ -9,6 +9,8 @@
 #include <string>
 #include <random>
 #include <algorithm>
+#include <curses.h>
+// /#include <conio.h>
 
 #include "tview.h"
 #include "game.h"
@@ -33,6 +35,8 @@
 #define BACKGROUND_COL_CYAN 46
 #define BACKGROUND_COL_WHITE 47
 
+Snake snake;
+const size_t rabits_quan = 20;
 struct termios old_term;
 bool final = false;
 
@@ -50,13 +54,11 @@ Tview::Tview() {
     term.c_lflag |= ISIG; 
     tcsetattr(0, TCSANOW, &term);
     signal(SIGINT, SignHandler);
-
 }
 
 Tview::~Tview() {
     tcsetattr(0, TCSANOW, &old_term);
 }
-
 
 void Tview::CleanScreen() {
     printf("\e[H\e[J");
@@ -82,8 +84,16 @@ void Tview::Draw(){
     const size_t length_x  = w.ws_col;
     const size_t length_y  = w.ws_row;
 
-    const std::vector<std::pair<int, int>>& rabits = RandCooord(length_x, length_y);
+    size_t start_x = length_x / 2;
+    size_t start_y = length_y / 2;
 
+    std::vector<std::pair<int, int>> rabits;
+
+    for(int i = 0; i < rabits_quan; ++i) {
+        std::pair<int, int> tmp = RandCooord(length_x, length_y);
+        rabits.push_back(tmp);
+    }
+    
     while(!final) {
 
         struct pollfd arr;
@@ -91,7 +101,7 @@ void Tview::Draw(){
         arr.events = POLLIN;
 
         int n = poll(&arr, 1, 500);
-        if( n == 1) {
+        if( n == 1 ) {
             
             char c;
             scanf("%c", &c);
@@ -119,62 +129,100 @@ void Tview::Draw(){
             GoCoord(length_x, i);
             printf("*");
         }
-
+    
         DrawRabits(rabits);
 
-        usleep(1000);
+        int dx = 1, dy = 1;
+        if(length_y > length_x) {
+            dx += length_y / length_x;
+        }else if(length_y < length_x) {
+            dy += length_x / length_y;
+        }
+
+        if(snake.Dir.UP)         start_y -= dy; 
+        else if(snake.Dir.DOWN)  start_y += dy;
+        else if(snake.Dir.RIGHT) start_x += dx;
+        else if(snake.Dir.LEFT)  start_x -= dx;
+
+        PrintSnake(start_x, start_y);
+        usleep(10);
     
     }
 
 
 }
 
-std::vector<std::pair<int, int>> Tview::RandCooord(const size_t length_x, const size_t length_y) {
-    const size_t rabits_quan = 20;
+std::pair<int, int> Tview::RandCooord(const size_t length_x, const size_t length_y) {
 
-    std::vector<std::pair<int, int>> rand_coord;
+    std::pair<int, int> rand_coord;
     
     std::random_device random_device; 
     std::mt19937 generator(random_device());
+
     std::uniform_int_distribution<> distribution_x(1, length_x);
     std::uniform_int_distribution<> distribution_y(1, length_y);
 
-    for(int i  = 0; i < rabits_quan; ++i) {
+    int x = distribution_x(generator);
+    int y = distribution_y(generator); 
 
-        int x = distribution_x(generator);
-        int y = distribution_y(generator); 
-
-        rand_coord.push_back(std::pair<int, int>(x, y));
-
-    }
+    rand_coord.first  = x;
+    rand_coord.second = y;
     
     return rand_coord;
 }
 
 void Tview::DrawRabits(const std::vector<std::pair<int, int>>& rabits) {
     SetColor(FOREGROUND_COL_WHITE, BACKGROUND_COL_BLACK);
-    for(const auto& [x, y]: rabits) {
+    for(const auto [x, y]: rabits) {
         GoCoord(x, y);
-        printf("@");
+        printf("R");
         fflush(stdout);        
     }
 }
 
-void Tview::PrintSnake(const size_t length_x, const size_t length_y) {
+void Tview::PrintSnake(const size_t start_x, const size_t start_y) {
 
-    size_t start_x;
-    size_t start_y;
-
-    std::random_device random_device; 
-    std::mt19937 generator(random_device());
-
-    std::uniform_int_distribution<> distribution_x(1, length_x);
-    std::uniform_int_distribution<> distribution_y(1, length_y);
-
-    start_x = distribution_x(generator);
-    start_y = distribution_y(generator);
-
-    GoCoord(start_x, start_y);
     
+    GoCoord(start_x, start_y);
+    SetColor(FOREGROUND_COL_RED, BACKGROUND_COL_BLACK);
+    printf("S");
+    fflush(stdout);
 
+    struct pollfd arr;
+    arr.fd = 0;
+    arr.events = POLLIN;
+    //snake.Dir.UP = true;
+    int n = poll(&arr, 1, 100);
+    if( n == 1 ) {
+
+        switch(getchar()) {
+            case 'a' :
+                snake.Dir.UP    = false;
+                snake.Dir.DOWN  = false;
+                snake.Dir.RIGHT = false;
+                snake.Dir.LEFT  = true;
+                break;
+
+            case 's' :
+                snake.Dir.UP    = false;
+                snake.Dir.DOWN  = true;
+                snake.Dir.RIGHT = false;
+                snake.Dir.LEFT  = false;
+                break;
+        
+            case 'd' :
+                snake.Dir.UP    = false;
+                snake.Dir.DOWN  = false;
+                snake.Dir.RIGHT = true;
+                snake.Dir.LEFT  = false;
+                break;
+
+            case 'w' :
+                snake.Dir.UP    = true;
+                snake.Dir.DOWN  = false;
+                snake.Dir.RIGHT = false;
+                snake.Dir.LEFT  = false;
+                break;
+        }
+    }
 }

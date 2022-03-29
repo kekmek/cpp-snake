@@ -16,7 +16,7 @@ class Snake{
     void SetDirection(char dir);
     //~Snake();
 
- private:
+ //private:
 
     bool is_alive;
     size_t size;
@@ -24,7 +24,7 @@ class Snake{
         bool UP    = false;
         bool DOWN  = false;
         bool RIGHT = false;
-        bool LEGT  = false;
+        bool LEFT  = false;
     } Dir;
 
 };
