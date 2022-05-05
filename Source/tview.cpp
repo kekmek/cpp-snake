@@ -14,6 +14,7 @@
 
 #include "tview.h"
 #include "game.h"
+#include "model.h"
 
 //Foreground Colors
 #define FOREGROUND_COL_BLACK 30
@@ -35,7 +36,6 @@
 #define BACKGROUND_COL_CYAN 46
 #define BACKGROUND_COL_WHITE 47
 
-Snake snake;
 const size_t rabits_quan = 20;
 struct termios old_term;
 bool final = false;
@@ -69,11 +69,11 @@ void Tview::GoCoord(int x, int y) {
 }
 
 void Tview::SetColor(int color) {
-    printf("\e[%dm", color);
+    printf("\033[0;%dm", color);
 }
 
 void Tview::SetColor(int f_color, int b_color) {
-    printf("\e[%d;%dm", f_color, b_color);
+    
 }
 
 void Tview::Draw(){
@@ -93,6 +93,8 @@ void Tview::Draw(){
         std::pair<int, int> tmp = RandCooord(length_x, length_y);
         rabits.push_back(tmp);
     }
+
+    Snake snake(start_x, start_y, length_x, length_y);
     
     while(!final) {
 
@@ -105,48 +107,16 @@ void Tview::Draw(){
             
             char c;
             scanf("%c", &c);
-
             if( c == 'q') break;
 
         }
-
-        SetColor(FOREGROUND_COL_YELLOW, BACKGROUND_COL_BLACK);
         CleanScreen();
-
-        GoCoord(1, 1);
-        for(int i = 1; i < length_x; ++i) {
-            printf("*");
-        }
-
-        GoCoord(1, length_y);
-        for(int i = 1; i < length_x; ++i) {
-            printf("*");
-        }
         
-        for(int i = 1; i < length_y; ++i) {
-            GoCoord(1, i);
-            printf("*");
-            GoCoord(length_x, i);
-            printf("*");
-        }
-    
-        DrawRabits(rabits);
+        DrawBoundary(length_x, length_y);
 
-        int dx = 1, dy = 1;
-        if(length_y > length_x) {
-            dx += length_y / length_x;
-        }else if(length_y < length_x) {
-            dy += length_x / length_y;
-        }
-
-        if(snake.Dir.UP)         start_y -= dy; 
-        else if(snake.Dir.DOWN)  start_y += dy;
-        else if(snake.Dir.RIGHT) start_x += dx;
-        else if(snake.Dir.LEFT)  start_x -= dx;
-
-        PrintSnake(start_x, start_y);
+        PrintSnake(snake.snake_body);
+        fflush(stdout);
         usleep(10);
-    
     }
 
 
@@ -180,49 +150,30 @@ void Tview::DrawRabits(const std::vector<std::pair<int, int>>& rabits) {
     }
 }
 
-void Tview::PrintSnake(const size_t start_x, const size_t start_y) {
+void Tview::PrintSnake(const std::vector<std::pair<int, int>>& snake_body) {
+    for(const auto& body : snake_body) {
+        GoCoord(body.first, body.second);
+        SetColor(FOREGROUND_COL_WHITE);
+        printf("@");
+    }
+}
 
-    
-    GoCoord(start_x, start_y);
-    SetColor(FOREGROUND_COL_RED, BACKGROUND_COL_BLACK);
-    printf("S");
-    fflush(stdout);
+void Tview::DrawBoundary(const size_t length_x, const size_t length_y) {
+    SetColor(FOREGROUND_COL_BLUE);
+    GoCoord(1, 1);
+    for(int i = 1; i < length_x; ++i) {
+        printf("*");
+    }
 
-    struct pollfd arr;
-    arr.fd = 0;
-    arr.events = POLLIN;
-    //snake.Dir.UP = true;
-    int n = poll(&arr, 1, 100);
-    if( n == 1 ) {
-
-        switch(getchar()) {
-            case 'a' :
-                snake.Dir.UP    = false;
-                snake.Dir.DOWN  = false;
-                snake.Dir.RIGHT = false;
-                snake.Dir.LEFT  = true;
-                break;
-
-            case 's' :
-                snake.Dir.UP    = false;
-                snake.Dir.DOWN  = true;
-                snake.Dir.RIGHT = false;
-                snake.Dir.LEFT  = false;
-                break;
+    GoCoord(1, length_y);
+    for(int i = 1; i < length_x; ++i) {
+        printf("*");
+    }
         
-            case 'd' :
-                snake.Dir.UP    = false;
-                snake.Dir.DOWN  = false;
-                snake.Dir.RIGHT = true;
-                snake.Dir.LEFT  = false;
-                break;
-
-            case 'w' :
-                snake.Dir.UP    = true;
-                snake.Dir.DOWN  = false;
-                snake.Dir.RIGHT = false;
-                snake.Dir.LEFT  = false;
-                break;
-        }
+    for(int i = 1; i < length_y; ++i) {
+        GoCoord(1, i);
+        printf("*");
+        GoCoord(length_x, i);
+        printf("*");
     }
 }
