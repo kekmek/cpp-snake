@@ -14,7 +14,7 @@ class Tview : public View{
  public:
   Tview();
   void Draw() override;
-  void DrawRabits(const std::vector<std::pair<int, int>>& rabits) override;
+  void DrawRabits(const std::map<int, std::set<int>>& rabits) override;
   void CleanScreen() override;  
   void PrintSnake(const std::vector<std::pair<int, int>>& snake_body) override;
   ~Tview();

@@ -1,7 +1,6 @@
 #include <iostream>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include <termios.h>
 #include <ctime>
 #include <termios.h>
 #include <signal.h>
@@ -72,10 +71,6 @@ void Tview::SetColor(int color) {
     printf("\033[0;%dm", color);
 }
 
-void Tview::SetColor(int f_color, int b_color) {
-    
-}
-
 void Tview::Draw(){
     
     struct winsize w;
@@ -87,11 +82,11 @@ void Tview::Draw(){
     size_t start_x = length_x / 2;
     size_t start_y = length_y / 2;
 
-    std::vector<std::pair<int, int>> rabits;
+    std::map<int, std::set<int>> rabits;
 
     for(int i = 0; i < rabits_quan; ++i) {
         std::pair<int, int> tmp = RandCooord(length_x, length_y);
-        rabits.push_back(tmp);
+        rabits[tmp.first].insert(tmp.second);
     }
 
     Snake snake(start_x, start_y, length_x, length_y);
@@ -113,13 +108,17 @@ void Tview::Draw(){
         CleanScreen();
         
         DrawBoundary(length_x, length_y);
-
+        DrawRabits(rabits);
         PrintSnake(snake.snake_body);
+
+        final = snake.Move();
+
+        
         fflush(stdout);
         usleep(10);
     }
 
-
+    std::cout << "Game is over! Your Score : " << snake.GetScore() << std::endl;
 }
 
 std::pair<int, int> Tview::RandCooord(const size_t length_x, const size_t length_y) {
@@ -141,19 +140,21 @@ std::pair<int, int> Tview::RandCooord(const size_t length_x, const size_t length
     return rand_coord;
 }
 
-void Tview::DrawRabits(const std::vector<std::pair<int, int>>& rabits) {
-    SetColor(FOREGROUND_COL_WHITE, BACKGROUND_COL_BLACK);
-    for(const auto [x, y]: rabits) {
-        GoCoord(x, y);
-        printf("R");
-        fflush(stdout);        
+void Tview::DrawRabits(const std::map<int, std::set<int>>& rabits) {
+    for(const auto [x, ys]: rabits) {
+        for(const auto y : ys) {
+            GoCoord(x, y);
+            SetColor(FOREGROUND_COL_WHITE);
+            printf("R");
+            fflush(stdout);
+        }        
     }
 }
 
 void Tview::PrintSnake(const std::vector<std::pair<int, int>>& snake_body) {
-    for(const auto& body : snake_body) {
-        GoCoord(body.first, body.second);
-        SetColor(FOREGROUND_COL_WHITE);
+    for(int i = 0; i < snake_body.size(); ++i) {
+        GoCoord(snake_body.at(0).first, snake_body.at(0).second);
+        i == 0 ? SetColor(FOREGROUND_COL_RED) : SetColor(FOREGROUND_COL_WHITE);
         printf("@");
     }
 }

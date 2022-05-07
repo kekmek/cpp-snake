@@ -13,9 +13,13 @@ enum class Direction {
 class Snake {
  public:
     Snake(const size_t start_x, const size_t start_y, const size_t length_x, const size_t length_y);
-    
+
     bool IsAlive() const;
+    bool Move();
+    void ChangeDirection(Direction dir);
     std::vector<std::pair<int, int>> snake_body;
+    Direction GetDirection() const;
+    size_t GetScore() const;
     ~Snake();
 
  private:
