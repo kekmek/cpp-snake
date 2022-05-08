@@ -72,7 +72,7 @@ void Tview::SetColor(int color) {
     printf("\033[0;%dm", color);
 }
 
-void Tview::Draw(){
+size_t Tview::Draw(){
     
     struct winsize w;
     ioctl(1, TIOCGWINSZ, &w);
@@ -142,6 +142,8 @@ void Tview::Draw(){
         fflush(stdout);
         usleep(100);
     }
+
+    return snake.GetScore();
 }
 
 std::pair<int, int> Tview::RandCooord(const size_t length_x, const size_t length_y) {
@@ -151,8 +153,8 @@ std::pair<int, int> Tview::RandCooord(const size_t length_x, const size_t length
     std::random_device random_device; 
     std::mt19937 generator(random_device());
 
-    std::uniform_int_distribution<> distribution_x(5, length_x);
-    std::uniform_int_distribution<> distribution_y(5, length_y);
+    std::uniform_int_distribution<> distribution_x(7, length_x);
+    std::uniform_int_distribution<> distribution_y(7, length_y);
 
     int x = distribution_x(generator);
     int y = distribution_y(generator); 

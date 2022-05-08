@@ -35,33 +35,28 @@ bool Snake::Move() {
         switch (dir_) {
         case Direction::RIGHT :
             snake_body.at(0).first += 1;
-            return false;
             break;
 
         case Direction::LEFT :
             snake_body.at(0).first -= 1;
-            return false;
             break;
 
         case Direction::UP :
             snake_body.at(0).second += 1;
-            return false;
             break;
 
         case Direction::DOWN :
             snake_body.at(0).second -= 1;
-            return false;
             break;
         
         default:
             break;
         }
 
-
+        return false;
     } else {
         return true;
     }
-    return false;
 }
 
 void Snake::ChangeDirection(Direction dir) {

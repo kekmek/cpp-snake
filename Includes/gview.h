@@ -7,7 +7,7 @@
 
 class Gview : public View {
 
-    void Draw() override {}
+    size_t Draw() override {}
     void DrawRabits(const std::map<int, int>& rabits) {}
     void CleanScreen() override {}
     void PrintSnake(const std::vector<std::pair<int, int>>& snake_body) override {}
