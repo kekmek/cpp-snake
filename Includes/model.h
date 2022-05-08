@@ -12,10 +12,14 @@ enum class Direction {
     LEFT
 };
 
+enum class Mouth {
+    OPEN,
+    CLOSE
+};
+
 class Snake {
  public:
     Snake(const size_t start_x, const size_t start_y, const size_t length_x, const size_t length_y);
-
     bool IsAlive() const;
     bool Move();
     void ChangeDirection(Direction dir);
@@ -26,6 +30,7 @@ class Snake {
 
  private:
     Direction dir_;
+    Mouth mouth_;
     size_t start_x_, start_y_;
     size_t length_x_, length_y_;
     size_t score_;
