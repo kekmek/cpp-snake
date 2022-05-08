@@ -1,7 +1,9 @@
 #ifndef MODEL
 #define MODEL
 
+#include <iostream>
 #include <vector>
+#include <utility>
 
 enum class Direction {
     UP,
@@ -17,8 +19,8 @@ class Snake {
     bool IsAlive() const;
     bool Move();
     void ChangeDirection(Direction dir);
+    void SnakeGrow(std::pair<int, int> head_coord);
     std::vector<std::pair<int, int>> snake_body;
-    Direction GetDirection() const;
     size_t GetScore() const;
     ~Snake();
 
@@ -27,7 +29,6 @@ class Snake {
     size_t start_x_, start_y_;
     size_t length_x_, length_y_;
     size_t score_;
-    
 };
 
 

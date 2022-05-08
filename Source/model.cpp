@@ -1,5 +1,6 @@
 #include "model.h"
 #include <vector>
+#include <algorithm>
 
 Snake::Snake(const size_t start_x, const size_t start_y, const size_t length_x, const size_t length_y) {
     start_x_ = start_x;
@@ -8,6 +9,7 @@ Snake::Snake(const size_t start_x, const size_t start_y, const size_t length_x, 
     length_y_ = length_y;
     score_ = 0;
     snake_body.push_back(std::pair<int, int>(start_x, start_y));
+    snake_body.push_back(std::pair<int, int>(start_x - 1, start_y));
     dir_ = Direction::RIGHT;
 }
 
@@ -24,8 +26,13 @@ bool Snake::IsAlive() const {
 
 bool Snake::Move() {
     if(IsAlive()) {
-        switch (Snake::GetDirection())
-        {
+
+        if(snake_body.size() > 1) {
+            snake_body.emplace(snake_body.begin() + 1, snake_body.at(0));
+            snake_body.pop_back();
+        }
+
+        switch (dir_) {
         case Direction::RIGHT :
             snake_body.at(0).first += 1;
             return false;
@@ -45,10 +52,12 @@ bool Snake::Move() {
             snake_body.at(0).second -= 1;
             return false;
             break;
-
+        
         default:
             break;
         }
+
+
     } else {
         return true;
     }
@@ -63,7 +72,29 @@ size_t Snake::GetScore() const {
     return score_;
 }
 
-Direction Snake::GetDirection() const {
-    return dir_;
+void Snake::SnakeGrow(std::pair<int, int> coord) {
+    switch (dir_)
+    {
+    case Direction:: UP:
+        snake_body.emplace(snake_body.begin(), std::pair<int, int>(coord.first, coord.second + 1));
+        break;
+    
+    case Direction:: DOWN:
+        snake_body.emplace(snake_body.begin(), std::pair<int, int>(coord.first, coord.second - 1));
+        break;
+
+    case Direction:: RIGHT:
+        snake_body.emplace(snake_body.begin(), std::pair<int, int>(coord.first + 1, coord.second));
+        break;
+
+    case Direction:: LEFT:
+        snake_body.emplace(snake_body.begin(), std::pair<int, int>(coord.first - 1, coord.second));
+        break;
+
+    default:
+        break;
+    }
+    ++score_;
 }
+
 Snake::~Snake() {};
