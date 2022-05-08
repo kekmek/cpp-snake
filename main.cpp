@@ -1,7 +1,4 @@
 #include <iostream>
-#include <list>
-#include <map>
-#include <vector>
 
 #include "gview.h"
 #include "tview.h"

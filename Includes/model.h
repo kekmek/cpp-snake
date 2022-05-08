@@ -21,7 +21,7 @@ class Snake {
  public:
     Snake(const size_t start_x, const size_t start_y, const size_t length_x, const size_t length_y);
     bool IsAlive() const;
-    bool Move();
+    bool Move(const std::string& window_type);
     void ChangeDirection(Direction dir);
     void SnakeGrow(std::pair<int, int> head_coord);
     std::vector<std::pair<int, int>> snake_body;

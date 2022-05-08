@@ -23,7 +23,19 @@ bool Snake::IsAlive() const {
     return true;
 }
 
-bool Snake::Move() {
+bool Snake::Move(const std::string& window_type) {
+
+    int step = 0;
+
+    if(window_type == "Tview") {
+        step = 1;
+    } else if(window_type == "Gview") {
+        step = 50;
+    } else {
+        std::cout << "RandCoord Error" << std::endl;
+        exit(-1);
+    }
+
     if(IsAlive()) {
 
         if(snake_body.size() > 1) {

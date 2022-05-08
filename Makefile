@@ -1,10 +1,10 @@
 CC=g++
-CFLAGS=-c -Wall -std=c++17 -IIncludes
+CFLAGS=-c -std=c++17 -IIncludes
 
 all: snake
 
-snake: clean main.o game.o gview.o human.o model.o tview.o view.o
-	$(CC) main.o game.o gview.o human.o model.o tview.o view.o -o snake -lsfml-graphics -lsfml-window -lsfml-system
+snake: main.o game.o gview.o human.o model.o tview.o view.o
+	$(CC) main.o game.o gview.o human.o model.o tview.o view.o -o snake -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
 main.o:
 	$(CC) $(CFLAGS) main.cpp

@@ -8,12 +8,12 @@
 #include <string>
 #include <random>
 #include <algorithm>
-#include <curses.h>
+//#include <curses.h>
 // /#include <conio.h>
 
 #include "tview.h"
 #include "game.h"
-#include "model.h"
+#include "model.h" 
 
 //Foreground Colors
 #define FOREGROUND_COL_BLACK 30
@@ -86,7 +86,7 @@ size_t Tview::Draw(){
     std::map<int, int> rabits;
 
     for(int i = 0; i < rabits_quan; ++i) {
-        std::pair<int, int> tmp = RandCooord(length_x, length_y);
+        std::pair<int, int> tmp = View::RandCooord(length_x, length_y, "Tview");
         rabits[tmp.first] = tmp.second;
     }
 
@@ -135,7 +135,7 @@ size_t Tview::Draw(){
         DrawBoundary(length_x, length_y);
         PrintSnake(snake.snake_body);
         DrawRabits(rabits);
-        final = snake.Move();
+        final = snake.Move("Tview");
         
         IsGrow(rabits, snake);
 
@@ -146,15 +146,26 @@ size_t Tview::Draw(){
     return snake.GetScore();
 }
 
-std::pair<int, int> Tview::RandCooord(const size_t length_x, const size_t length_y) {
+std::pair<int, int> View::RandCooord(const size_t length_x, const size_t length_y, const std::string& window_type) {
+
+    int step = 0;
+
+    if(window_type == "Tview") {
+        step = 10;
+    }else if(window_type == "Gview") {
+        step = 50;
+    }else {
+        std::cout << "RandCoord Error" << std::endl;
+        exit(-1);
+    }
 
     std::pair<int, int> rand_coord;
     
     std::random_device random_device; 
     std::mt19937 generator(random_device());
 
-    std::uniform_int_distribution<> distribution_x(2, length_x - 2);
-    std::uniform_int_distribution<> distribution_y(2, length_y - 2);
+    std::uniform_int_distribution<> distribution_x(step, length_x - step);
+    std::uniform_int_distribution<> distribution_y(step, length_y - step);
 
     int x = distribution_x(generator);
     int y = distribution_y(generator); 
@@ -209,5 +220,6 @@ void Tview::IsGrow(std::map<int, int>& rabits, Snake& snake) {
         auto tmp = snake.snake_body.at(0).first;
         snake.SnakeGrow(std::pair<int, int>(snake.snake_body.at(0).first, rabits.at(snake.snake_body.at(0).first)));
         rabits.erase(tmp);
+        printf("\a");
     }
 }
