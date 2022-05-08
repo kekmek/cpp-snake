@@ -35,7 +35,7 @@
 #define BACKGROUND_COL_CYAN 46
 #define BACKGROUND_COL_WHITE 47
 
-const size_t rabits_quan = 20;
+const size_t rabits_quan = 40;
 struct termios old_term;
 bool final = false;
 
@@ -153,8 +153,8 @@ std::pair<int, int> Tview::RandCooord(const size_t length_x, const size_t length
     std::random_device random_device; 
     std::mt19937 generator(random_device());
 
-    std::uniform_int_distribution<> distribution_x(7, length_x);
-    std::uniform_int_distribution<> distribution_y(7, length_y);
+    std::uniform_int_distribution<> distribution_x(2, length_x - 2);
+    std::uniform_int_distribution<> distribution_y(2, length_y - 2);
 
     int x = distribution_x(generator);
     int y = distribution_y(generator); 

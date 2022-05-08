@@ -9,7 +9,6 @@ Snake::Snake(const size_t start_x, const size_t start_y, const size_t length_x, 
     length_y_ = length_y;
     score_ = 0;
     snake_body.push_back(std::pair<int, int>(start_x, start_y));
-    snake_body.push_back(std::pair<int, int>(start_x - 1, start_y));
     dir_ = Direction::RIGHT;
 }
 
