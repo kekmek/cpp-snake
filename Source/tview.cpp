@@ -35,6 +35,12 @@
 #define BACKGROUND_COL_CYAN 46
 #define BACKGROUND_COL_WHITE 47
 
+//Strelochki
+#define LEFTBUTTON ^[[D
+#define UPBUTTON '^[[A'
+#define RIGHTBUTTON ^[[B
+#define DOWNBUTTON ^[[C
+
 const size_t rabits_quan = 40;
 struct termios old_term;
 bool final = false;
@@ -86,12 +92,13 @@ size_t Tview::Draw(){
     std::map<int, int> rabits;
 
     for(int i = 0; i < rabits_quan; ++i) {
-        std::pair<int, int> tmp = View::RandCooord(length_x, length_y, "Tview");
+        std::pair<int, int> tmp = View::RandCooord(length_x, length_y);
         rabits[tmp.first] = tmp.second;
     }
 
     Snake snake(start_x, start_y, length_x, length_y);
-    
+    Snake snake_2(start_x, start_y + 1, length_x, length_y);
+
     while(!final) {
 
         struct pollfd arr;
@@ -124,6 +131,22 @@ size_t Tview::Draw(){
                         snake.ChangeDirection(Direction::RIGHT);
                     break;
 
+
+                    case 'i':
+                        snake_2.ChangeDirection(Direction::DOWN);
+                    break;
+
+                    case 'j' :
+                        snake_2.ChangeDirection(Direction::LEFT);
+                    break;
+
+                    case 'k' :
+                        snake_2.ChangeDirection(Direction::UP);
+                    break;
+
+                    case 'l' :
+                        snake_2.ChangeDirection(Direction::RIGHT);
+                    break;
                     default:
                     break;
                 }
@@ -133,39 +156,29 @@ size_t Tview::Draw(){
         CleanScreen();
         
         DrawBoundary(length_x, length_y);
-        PrintSnake(snake.snake_body);
+        PrintSnake(snake.snake_body, snake.GetDirection());
+        PrintSnake(snake_2.snake_body, snake_2.GetDirection());
         DrawRabits(rabits);
-        final = snake.Move("Tview");
-        
+        final = snake.Move();    
+        final = snake_2.Move();
         IsGrow(rabits, snake);
-
+        IsGrow(rabits, snake_2);
         fflush(stdout);
-        usleep(100);
+        //usleep(10);
     }
 
     return snake.GetScore();
 }
 
-std::pair<int, int> View::RandCooord(const size_t length_x, const size_t length_y, const std::string& window_type) {
-
-    int step = 0;
-
-    if(window_type == "Tview") {
-        step = 10;
-    }else if(window_type == "Gview") {
-        step = 50;
-    }else {
-        std::cout << "RandCoord Error" << std::endl;
-        exit(-1);
-    }
-
+std::pair<int, int> View::RandCooord(const size_t length_x, const size_t length_y) {
+    
     std::pair<int, int> rand_coord;
     
     std::random_device random_device; 
     std::mt19937 generator(random_device());
 
-    std::uniform_int_distribution<> distribution_x(step, length_x - step);
-    std::uniform_int_distribution<> distribution_y(step, length_y - step);
+    std::uniform_int_distribution<> distribution_x(2, length_x - 2);
+    std::uniform_int_distribution<> distribution_y(2, length_y - 2);
 
     int x = distribution_x(generator);
     int y = distribution_y(generator); 
@@ -177,9 +190,9 @@ std::pair<int, int> View::RandCooord(const size_t length_x, const size_t length_
 }
 
 void Tview::DrawRabits(const std::map<int, int>& rabits) {
-    for(const auto [x, y]: rabits) {
+    for(const auto& coord: rabits) {
         
-        GoCoord(x, y);
+        GoCoord(coord.first, coord.second);
         SetColor(FOREGROUND_COL_WHITE);
         printf("R");
         fflush(stdout);
@@ -187,7 +200,7 @@ void Tview::DrawRabits(const std::map<int, int>& rabits) {
     }
 }
 
-void Tview::PrintSnake(const std::vector<std::pair<int, int>>& snake_body) {
+void Tview::PrintSnake(const std::vector<std::pair<int, int>>& snake_body, Direction dir) {
     for(int i = 0; i < snake_body.size(); ++i) {
         GoCoord(snake_body.at(i).first, snake_body.at(i).second);
         i == 0 ? SetColor(FOREGROUND_COL_RED) : SetColor(FOREGROUND_COL_WHITE);
@@ -221,5 +234,5 @@ void Tview::IsGrow(std::map<int, int>& rabits, Snake& snake) {
         snake.SnakeGrow(std::pair<int, int>(snake.snake_body.at(0).first, rabits.at(snake.snake_body.at(0).first)));
         rabits.erase(tmp);
         printf("\a");
-    }
+    }snake.GetScore();
 }

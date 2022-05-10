@@ -8,12 +8,12 @@ Snake::Snake(const size_t start_x, const size_t start_y, const size_t length_x, 
     length_x_ = length_x;
     length_y_ = length_y;
     score_ = 0;
-    snake_body.push_back(std::pair<int, int>(start_x, start_y));
+    snake_body.push_back(std::pair<float, float>(start_x, start_y));
     dir_ = Direction::RIGHT;
 }
 
 bool Snake::IsAlive() const {
-    if(snake_body.at(0).first == length_x_ || snake_body.at(0).first == 1 || snake_body.at(0).second == length_y_ || snake_body.at(0).second == 1) {
+    if(snake_body.at(0).first == length_x_ || !snake_body.at(0).first || snake_body.at(0).second == length_y_ || !snake_body.at(0).second) {
         return false;
     }else {
         for(int i = 1; i < snake_body.size(); ++i) {
@@ -23,19 +23,9 @@ bool Snake::IsAlive() const {
     return true;
 }
 
-bool Snake::Move(const std::string& window_type) {
-
-    int step = 0;
-
-    if(window_type == "Tview") {
-        step = 1;
-    } else if(window_type == "Gview") {
-        step = 50;
-    } else {
-        std::cout << "RandCoord Error" << std::endl;
-        exit(-1);
-    }
-
+bool Snake::Move() {
+    float step = 1.0;
+    
     if(IsAlive()) {
 
         if(snake_body.size() > 1) {
@@ -45,19 +35,19 @@ bool Snake::Move(const std::string& window_type) {
 
         switch (dir_) {
         case Direction::RIGHT :
-            snake_body.at(0).first += 1;
+            snake_body.at(0).first += step;
             break;
 
         case Direction::LEFT :
-            snake_body.at(0).first -= 1;
+            snake_body.at(0).first -= step;
             break;
 
         case Direction::UP :
-            snake_body.at(0).second += 1;
+            snake_body.at(0).second += step;
             break;
 
         case Direction::DOWN :
-            snake_body.at(0).second -= 1;
+            snake_body.at(0).second -= step;
             break;
         
         default:
@@ -79,8 +69,7 @@ size_t Snake::GetScore() const {
 }
 
 void Snake::SnakeGrow(std::pair<int, int> coord) {
-    switch (dir_)
-    {
+    switch (dir_) {
     case Direction:: UP:
         snake_body.emplace(snake_body.begin(), std::pair<int, int>(coord.first, coord.second + 1));
         break;
@@ -101,6 +90,10 @@ void Snake::SnakeGrow(std::pair<int, int> coord) {
         break;
     }
     ++score_;
+}
+
+Direction Snake::GetDirection() const {
+    return dir_;
 }
 
 Snake::~Snake() {};
