@@ -15,7 +15,7 @@ View* View::Get(const std::string& type) {
         if(type == text){
             obj = new Tview;
         }else if(type == goi){
-            obj = new Gview;
+            //obj = new Gview;
         }
     }
     return obj;

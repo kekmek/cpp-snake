@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <utility>
+#include <map>
 
 enum class Direction {
     UP,
@@ -15,8 +16,8 @@ enum class Direction {
 class Snake {
  public:
     Snake(const size_t start_x, const size_t start_y, const size_t length_x, const size_t length_y);
-    bool IsAlive() const;
-    bool Move();
+    bool IsAlive(const std::map<int, int>& stones) const;
+    bool Move(const std::map<int, int>& stones);
     void ChangeDirection(Direction dir);
     void SnakeGrow(std::pair<int, int> head_coord);
     std::vector<std::pair<int, int>> snake_body;

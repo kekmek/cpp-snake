@@ -20,6 +20,7 @@ class Gview : public View {
    void CleanScreen() override {}
    void PrintSnake(const std::vector<std::pair<int, int>>& snake_body, Direction dir) override;
    void IsGrow(std::map<int, int>& rabits, Snake& snake) override;
+   //void DrawStones(std::map<int, int>& stones, const size_t length_x, const size_t length_y) override{}
    ~Gview();
 
  private:

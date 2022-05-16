@@ -3,6 +3,7 @@
 const size_t boundary_width_x = 20;
 const size_t boundary_width_y = 30;
 const size_t rabits_quan = 30;
+const size_t stones_quan = 20;
 
 const size_t screen_resolution_x = 1920;
 const size_t screen_resolution_y = 1080;
@@ -69,10 +70,16 @@ size_t Gview::Draw() {
         std::pair<int, int> tmp = View::RandCooord(x_blocks, y_blocks);
         rabits[tmp.first] = tmp.second;
     }
+
+    std::map<int, int> stones;
+    for(int i = 0; i < stones_quan; ++i) {
+        std::pair<int, int> tmp = View::RandCooord(screen_resolution_x, 4);
+        stones[tmp.first] = tmp.second;
+    }
     
     Snake snake(x_blocks/2, y_blocks/2, x_blocks, y_blocks);
     while(window_->isOpen()) {
-        if(snake.IsAlive()) {
+        if(snake.IsAlive(stones)) {
             DrawBoundary();
             sf::Event event;
             while (window_->pollEvent(event)) {
@@ -90,22 +97,22 @@ size_t Gview::Draw() {
                         
                         case sf::Keyboard::D :
                             snake.ChangeDirection(Direction::RIGHT);
-                            snake.Move();
+                            snake.Move(stones);
                             break;
                         
                         case sf::Keyboard::W :
                             snake.ChangeDirection(Direction::DOWN);
-                            snake.Move();
+                            snake.Move(stones);
                             break;
 
                         case sf::Keyboard::S :
                             snake.ChangeDirection(Direction::UP);
-                            snake.Move();
+                            snake.Move(stones);
                             break;
                         
                         case sf::Keyboard::A :
                             snake.ChangeDirection(Direction::LEFT);
-                            snake.Move();
+                            snake.Move(stones);
                             break;
 
                         default:
@@ -123,7 +130,7 @@ size_t Gview::Draw() {
 
             DrawRabits(rabits);
             PrintSnake(snake.snake_body, snake.GetDirection());
-            snake.Move();
+            snake.Move(stones);
             IsGrow(rabits, snake);
 
             window_->display();
@@ -218,6 +225,11 @@ void Gview::IsGrow(std::map<int, int>& rabits, Snake& snake) {
         rabits.erase(tmp);
     }
 }
+
+// void Gview::DrawStones(std::map<int, int>& stones, const size_t length_x, const size_t length_y) {
+//     sf::RectangleShape rectangle(sf::Vector2f(model, model));
+
+// }
 
 Gview::~Gview() {
     delete window_;

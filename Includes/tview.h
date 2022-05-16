@@ -19,13 +19,13 @@ class Tview : public View{
   void CleanScreen() override;  
   void PrintSnake(const std::vector<std::pair<int, int>>& snake_body, Direction dir) override;
   void IsGrow(std::map<int, int>& rabits, Snake& snake) override;
+  void DrawStones(std::map<int, int>& stones, const size_t length_x, const size_t length_y);
   ~Tview();
 
  private:   
   void GoCoord(int x, int y);
   void SetColor(int color);
   void DrawBoundary(const size_t length_x, const size_t length_y);
-  
 };
 
 #endif // TVIEW

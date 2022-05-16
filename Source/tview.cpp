@@ -41,6 +41,7 @@
 #define RIGHTBUTTON ^[[B
 #define DOWNBUTTON ^[[C
 
+const size_t stones_quan = 20;
 const size_t rabits_quan = 40;
 struct termios old_term;
 bool final = false;
@@ -95,6 +96,11 @@ size_t Tview::Draw(){
         std::pair<int, int> tmp = View::RandCooord(length_x, length_y);
         rabits[tmp.first] = tmp.second;
     }
+    std::map<int, int> stones;
+    // for(int i = 0; i < stones_quan; ++i) {
+    //     std::pair<int, int> tmp = View::RandCooord(length_x, 4);
+    //     stones[tmp.first] = tmp.second;
+    // }
 
     Snake snake(start_x, start_y, length_x, length_y);
     Snake snake_2(start_x, start_y + 1, length_x, length_y);
@@ -153,16 +159,24 @@ size_t Tview::Draw(){
             }
         }
 
+        if(stones.empty()) {
+            for(int i = 0; i < stones_quan; ++i) {
+                std::pair<int, int> tmp = View::RandCooord(length_x, length_y / 2);
+                stones[tmp.first] = tmp.second;
+            }
+        }
+
         CleanScreen();
         
         DrawBoundary(length_x, length_y);
         PrintSnake(snake.snake_body, snake.GetDirection());
-        PrintSnake(snake_2.snake_body, snake_2.GetDirection());
+        //PrintSnake(snake_2.snake_body, snake_2.GetDirection());
         DrawRabits(rabits);
-        final = snake.Move();    
-        final = snake_2.Move();
+        final = snake.Move(stones);    
+        //final = snake_2.Move();
         IsGrow(rabits, snake);
-        IsGrow(rabits, snake_2);
+        //IsGrow(rabits, snake_2);
+        DrawStones(stones, length_x, length_y);
         fflush(stdout);
         //usleep(10);
     }
@@ -203,8 +217,35 @@ void Tview::DrawRabits(const std::map<int, int>& rabits) {
 void Tview::PrintSnake(const std::vector<std::pair<int, int>>& snake_body, Direction dir) {
     for(int i = 0; i < snake_body.size(); ++i) {
         GoCoord(snake_body.at(i).first, snake_body.at(i).second);
-        i == 0 ? SetColor(FOREGROUND_COL_RED) : SetColor(FOREGROUND_COL_WHITE);
-        printf("@");
+        //i == 0 ? SetColor(FOREGROUND_COL_RED) : SetColor(FOREGROUND_COL_WHITE);
+        if(i == 0) {
+            SetColor(FOREGROUND_COL_RED);
+            switch (dir)
+            {
+            case Direction::DOWN :
+                printf("^");
+                break;
+            
+            case Direction::LEFT :
+                printf("<");
+                break;
+            
+            case Direction::RIGHT :
+                printf(">");
+                break;
+
+            case Direction::UP :
+                printf("v");
+                break;
+
+            default:
+                break;
+            }
+        } else {
+            SetColor(FOREGROUND_COL_WHITE);
+            printf("@");
+        }
+        //printf("@");
     }
 }
 
@@ -234,5 +275,18 @@ void Tview::IsGrow(std::map<int, int>& rabits, Snake& snake) {
         snake.SnakeGrow(std::pair<int, int>(snake.snake_body.at(0).first, rabits.at(snake.snake_body.at(0).first)));
         rabits.erase(tmp);
         printf("\a");
-    }snake.GetScore();
+    }
+    //snake.GetScore();
+}
+
+void Tview::DrawStones(std::map<int, int>& stones, const size_t length_x, const size_t length_y) {
+    for(auto stone : stones) {
+        GoCoord(stone.first, stone.second);
+        SetColor(FOREGROUND_COL_YELLOW);
+        printf("#");
+        ++stones.at(stone.first);
+        if(stones.at(stone.first) == length_y) {
+            stones.at(stone.first) = View::RandCooord(length_x, 4).second;
+        }
+    }
 }

@@ -16,6 +16,7 @@ class View{
   virtual void PrintSnake(const std::vector<std::pair<int, int>>& snake_body, Direction dir) = 0;
   virtual void CleanScreen() = 0;
   virtual void IsGrow(std::map<int, int>& rabits, Snake& snake) = 0;
+  //virtual void DrawStones(std::map<int, int>& stones, const size_t length_x, const size_t length_y);
   virtual ~View() {}
   std::pair<int, int> RandCooord(const size_t length_x, const size_t length_y);
 

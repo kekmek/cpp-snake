@@ -9,10 +9,16 @@ Snake::Snake(const size_t start_x, const size_t start_y, const size_t length_x, 
     length_y_ = length_y;
     score_ = 0;
     snake_body.push_back(std::pair<float, float>(start_x, start_y));
+    snake_body.push_back(std::pair<float, float>(start_x - 1, start_y));
+    snake_body.push_back(std::pair<float, float>(start_x - 2, start_y));
+    snake_body.push_back(std::pair<float, float>(start_x - 3, start_y));
+    snake_body.push_back(std::pair<float, float>(start_x - 4, start_y));
+    snake_body.push_back(std::pair<float, float>(start_x - 5, start_y));
+    snake_body.push_back(std::pair<float, float>(start_x - 6, start_y));
     dir_ = Direction::RIGHT;
 }
 
-bool Snake::IsAlive() const {
+bool Snake::IsAlive(const std::map<int, int>& stones) const {
     if(snake_body.at(0).first == length_x_ || !snake_body.at(0).first || snake_body.at(0).second == length_y_ || !snake_body.at(0).second) {
         return false;
     }else {
@@ -20,13 +26,20 @@ bool Snake::IsAlive() const {
             if(snake_body.at(i) == snake_body.at(0)) return false;
         }    
     }
+
+    for(auto body : snake_body) {
+        if(stones.count(body.first) && stones.at(body.first) == body.second) {
+            return false;
+        }
+    }
+
     return true;
 }
 
-bool Snake::Move() {
+bool Snake::Move(const std::map<int, int>& stones) {
     float step = 1.0;
     
-    if(IsAlive()) {
+    if(IsAlive(stones)) {
 
         if(snake_body.size() > 1) {
             snake_body.emplace(snake_body.begin() + 1, snake_body.at(0));
